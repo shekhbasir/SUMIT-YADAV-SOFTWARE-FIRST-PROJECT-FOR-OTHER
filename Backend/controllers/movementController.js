@@ -1,197 +1,171 @@
-import crypto from "crypto";
-
 import MovementMember from "../models/MovementMember.js";
 
-/* =========================================
-   HELPERS
-========================================= */
-
-const normalizeMobile = (mobile) => {
-  return String(mobile).replace(/\s+/g, "").replace(/-/g, "").trim();
-};
+/* =====================================
+   GENERATE UNIQUE MOVEMENT ID
+===================================== */
 
 const generateMovementId = () => {
+  const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+
   const year = new Date().getFullYear();
 
-  const random = crypto.randomBytes(4).toString("hex").toUpperCase();
-
-  return `SY-BSM-${year}-${random}`;
+  return `SYB-${year}-${random}`;
 };
 
-/* =========================================
+/* =====================================
    JOIN MOVEMENT
+
    POST /api/movement/join
-========================================= */
+===================================== */
 
 export const joinMovement = async (req, res) => {
   try {
-    const { name, age, mobile, address, ward } = req.body;
+    let { name, age, mobile, address, ward } = req.body;
 
-    /* ===============================
-       BASIC VALIDATION
-    =============================== */
+    /* ================================
+       CLEAN DATA
+    ================================ */
+
+    name = name?.trim();
+    mobile = mobile?.trim();
+    address = address?.trim();
+
+    age = Number(age);
+    ward = Number(ward);
+
+    /* ================================
+       VALIDATION
+    ================================ */
 
     if (!name || !age || !mobile || !address || !ward) {
       return res.status(400).json({
         success: false,
-
         message: "कृपया सबै आवश्यक जानकारी भर्नुहोस्।",
       });
     }
 
-    const cleanName = String(name).trim();
-
-    const cleanAddress = String(address).trim();
-
-    const cleanMobile = normalizeMobile(mobile);
-
-    const numericAge = Number(age);
-
-    const numericWard = Number(ward);
-
-    /* ===============================
-       NAME VALIDATION
-    =============================== */
-
-    if (cleanName.length < 2 || cleanName.length > 100) {
+    if (name.length < 2) {
       return res.status(400).json({
         success: false,
-
-        message: "कृपया सही नाम प्रविष्ट गर्नुहोस्।",
+        message: "कृपया सही नाम लेख्नुहोस्।",
       });
     }
 
-    /* ===============================
-       AGE VALIDATION
-    =============================== */
-
-    if (!Number.isInteger(numericAge) || numericAge < 16 || numericAge > 120) {
+    if (!Number.isInteger(age) || age < 16 || age > 120) {
       return res.status(400).json({
         success: false,
-
-        message: "कृपया सही उमेर प्रविष्ट गर्नुहोस्।",
+        message: "कृपया सही उमेर दिनुहोस्।",
       });
     }
 
-    /* ===============================
-       MOBILE VALIDATION
-
-       Nepal mobile format:
-       98XXXXXXXX
-       97XXXXXXXX
-    =============================== */
-
-    if (!/^(?:\+977)?9[678]\d{8}$/.test(cleanMobile)) {
+    if (!/^\d{10,15}$/.test(mobile)) {
       return res.status(400).json({
         success: false,
-
-        message: "कृपया सही मोबाइल नम्बर प्रविष्ट गर्नुहोस्।",
+        message: "कृपया सही मोबाइल नम्बर दिनुहोस्।",
       });
     }
 
-    /* ===============================
-       WARD VALIDATION
-    =============================== */
-
-    if (!Number.isInteger(numericWard) || numericWard < 1 || numericWard > 5) {
+    if (!Number.isInteger(ward) || ward < 1 || ward > 5) {
       return res.status(400).json({
         success: false,
-
-        message: "कृपया Ward नम्बर 1 देखि 5 सम्म चयन गर्नुहोस्।",
+        message: "कृपया सही Ward नम्बर छान्नुहोस्।",
       });
     }
 
-    /* ===============================
-       ADDRESS VALIDATION
-    =============================== */
-
-    if (cleanAddress.length < 2 || cleanAddress.length > 200) {
-      return res.status(400).json({
-        success: false,
-
-        message: "कृपया सही ठेगाना प्रविष्ट गर्नुहोस्।",
-      });
-    }
-
-    /* ===============================
+    /* ================================
        CHECK DUPLICATE MOBILE
-    =============================== */
+    ================================ */
 
     const existingMember = await MovementMember.findOne({
-      mobile: cleanMobile,
+      mobile,
     });
 
     if (existingMember) {
-      return res.status(409).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
 
         alreadyJoined: true,
 
-        message: "यो मोबाइल नम्बरबाट पहिले नै Movement मा Join गरिएको छ।",
+        message: "तपाईं पहिले नै अभियानमा सहभागी हुनुहुन्छ।",
 
-        movementId: existingMember.movementId,
+        member: {
+          name: existingMember.name,
+          age: existingMember.age,
+          mobile: existingMember.mobile,
+          address: existingMember.address,
+          ward: existingMember.ward,
+          movementId: existingMember.movementId,
+          status: existingMember.status,
+          createdAt: existingMember.createdAt,
+        },
       });
     }
 
-    /* ===============================
+    /* ================================
+       GENERATE UNIQUE ID
+    ================================ */
+
+    let movementId;
+    let exists = true;
+
+    while (exists) {
+      movementId = generateMovementId();
+
+      const found = await MovementMember.findOne({
+        movementId,
+      });
+
+      exists = !!found;
+    }
+
+    /* ================================
        CREATE MEMBER
-    =============================== */
+    ================================ */
 
     const member = await MovementMember.create({
-      name: cleanName,
-
-      age: numericAge,
-
-      mobile: cleanMobile,
-
-      address: cleanAddress,
-
-      ward: numericWard,
-
-      movementId: generateMovementId(),
+      name,
+      age,
+      mobile,
+      address,
+      ward,
+      movementId,
+      status: "active",
     });
 
-    /* ===============================
-       SUCCESS RESPONSE
-
-       Important:
-       सिर्फ जरूरी data वापस भेज रहे हैं।
-       Mobile वापस नहीं भेज रहे।
-    =============================== */
+    /* ================================
+       SUCCESS
+    ================================ */
 
     return res.status(201).json({
       success: true,
 
-      message: "तपाईं सफलतापूर्वक हाम्रो Movement मा सहभागी हुनुभएको छ।",
+      alreadyJoined: false,
+
+      message: "तपाईं सफलतापूर्वक विश्रामपुर विकास अभियानमा सहभागी हुनुभएको छ।",
 
       member: {
         name: member.name,
-
         age: member.age,
-
+        mobile: member.mobile,
+        address: member.address,
         ward: member.ward,
-
         movementId: member.movementId,
-
-        joinedAt: member.createdAt,
+        status: member.status,
+        createdAt: member.createdAt,
       },
     });
   } catch (error) {
     console.error("JOIN MOVEMENT ERROR:", error);
 
-    /* Duplicate MongoDB error */
-
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-
-        message: "यो जानकारी पहिले नै प्रयोग गरिएको छ।",
+        message: "यो मोबाइल नम्बरबाट पहिले नै Movement मा सहभागिता गरिएको छ।",
       });
     }
 
     return res.status(500).json({
       success: false,
-
       message: "Movement Join गर्न समस्या भयो। कृपया फेरि प्रयास गर्नुहोस्।",
     });
   }

@@ -1,5 +1,6 @@
-import { Users, Menu } from "lucide-react";
+import { Users, Menu, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import DesktopNav from "./DesktopNav";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -10,6 +11,9 @@ export default function Navbar() {
 
   // सिर्फ Join Movement modal के लिए
   const [joinModalOpen, setJoinModalOpen] = useState(false);
+
+  // Admin navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,7 +36,7 @@ export default function Navbar() {
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-4">
           {/* Logo */}
-          <div className="group flex items-center gap-3 cursor-pointer">
+          <div className="group flex cursor-pointer items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-lime-400 text-2xl transition group-hover:rotate-12">
               🌳
             </div>
@@ -53,8 +57,20 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
 
+            {/* Admin */}
+            <button
+              type="button"
+              onClick={() => navigate("/admin")}
+              className="hidden md:flex items-center gap-2 rounded-xl border border-lime-400/30 bg-lime-400/10 px-4 py-3 text-sm font-bold text-lime-300 transition-all duration-300 hover:scale-105 hover:border-lime-400/60 hover:bg-lime-400 hover:text-black"
+              aria-label="Open Admin Login"
+            >
+              <ShieldCheck size={17} />
+              ADMIN
+            </button>
+
             {/* सिर्फ onClick add किया है */}
             <button
+              type="button"
               onClick={() => setJoinModalOpen(true)}
               className="hidden md:flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-black transition hover:scale-105"
             >
@@ -63,7 +79,11 @@ export default function Navbar() {
             </button>
 
             {/* Mobile */}
-            <button className="xl:hidden flex h-11 w-11 items-center justify-center rounded-xl border border-white/10">
+            <button
+              type="button"
+              className="xl:hidden flex h-11 w-11 items-center justify-center rounded-xl border border-white/10"
+              aria-label="Open menu"
+            >
               <Menu />
             </button>
           </div>

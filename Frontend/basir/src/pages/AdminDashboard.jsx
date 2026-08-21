@@ -11,7 +11,12 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-import adminApi from "../api/adminApi";
+import {
+  adminLogout,
+  getDashboard,
+  getMember,
+  getMembers,
+} from "../api/adminApi";
 
 import StatsCard from "../components/admin/StatsCard";
 
@@ -40,25 +45,17 @@ export default function AdminDashboard({ admin, onLogout }) {
 
   const [selectedMember, setSelectedMember] = useState(null);
 
-  /* ===============================
-     DASHBOARD DATA
-  =============================== */
-
   const fetchDashboard = async () => {
     try {
-      const { data } = await adminApi.get("/admin/dashboard");
+      const data = await getDashboard();
 
-      if (data.success) {
+      if (data?.success) {
         setStats(data.stats);
       }
     } catch (error) {
       console.error("Dashboard error:", error);
     }
   };
-
-  /* ===============================
-     MEMBERS
-  =============================== */
 
   const fetchMembers = async () => {
     try {
@@ -77,14 +74,12 @@ export default function AdminDashboard({ admin, onLogout }) {
         params.ward = ward;
       }
 
-      const { data } = await adminApi.get("/admin/members", {
-        params,
-      });
+      const data = await getMembers(params);
 
-      if (data.success) {
-        setMembers(data.members);
+      if (data?.success) {
+        setMembers(data.members || []);
 
-        setPagination(data.pagination);
+        setPagination(data.pagination || null);
       }
     } catch (error) {
       console.error("Members error:", error);
@@ -92,10 +87,6 @@ export default function AdminDashboard({ admin, onLogout }) {
       setLoading(false);
     }
   };
-
-  /* ===============================
-     INITIAL LOAD
-  =============================== */
 
   useEffect(() => {
     fetchDashboard();
@@ -109,17 +100,13 @@ export default function AdminDashboard({ admin, onLogout }) {
     return () => clearTimeout(timer);
   }, [page, ward, search]);
 
-  /* ===============================
-     MEMBER DETAILS
-  =============================== */
-
   const handleViewMember = async (id) => {
     try {
       setMemberLoading(true);
 
-      const { data } = await adminApi.get(`/admin/members/${id}`);
+      const data = await getMember(id);
 
-      if (data.success) {
+      if (data?.success) {
         setSelectedMember(data.member);
       }
     } catch (error) {
@@ -129,13 +116,9 @@ export default function AdminDashboard({ admin, onLogout }) {
     }
   };
 
-  /* ===============================
-     LOGOUT
-  =============================== */
-
   const handleLogout = async () => {
     try {
-      await adminApi.post("/auth/admin/logout");
+      await adminLogout();
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -182,7 +165,9 @@ export default function AdminDashboard({ admin, onLogout }) {
             </button>
 
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold">{admin?.username}</p>
+              <p className="text-sm font-semibold">
+                {admin?.username || "Admin"}
+              </p>
 
               <p className="text-xs text-lime-400">Administrator</p>
             </div>
@@ -220,7 +205,7 @@ export default function AdminDashboard({ admin, onLogout }) {
           </div>
 
           <h2 className="mt-3 text-2xl font-black md:text-4xl">
-            Welcome back, {admin?.username} 👋
+            Welcome back, {admin?.username || "Admin"} 👋
           </h2>
 
           <p className="mt-2 text-sm text-slate-400">
@@ -235,7 +220,7 @@ export default function AdminDashboard({ admin, onLogout }) {
           <StatsCard
             index={0}
             title="Total Members"
-            value={stats?.totalMembers}
+            value={stats?.totalMembers ?? 0}
             subtitle="All registered movement members"
             Icon={Users}
           />
@@ -243,7 +228,7 @@ export default function AdminDashboard({ admin, onLogout }) {
           <StatsCard
             index={1}
             title="Joined Today"
-            value={stats?.todayJoined}
+            value={stats?.todayJoined ?? 0}
             subtitle="New members registered today"
             Icon={UserPlus}
           />
@@ -265,10 +250,10 @@ export default function AdminDashboard({ admin, onLogout }) {
           />
         </div>
 
-        {/* Ward */}
+        {/* Ward Stats */}
 
         <div className="mt-5">
-          <WardStats wards={stats?.wards} />
+          <WardStats wards={stats?.wards || []} />
         </div>
 
         {/* Members */}
@@ -280,7 +265,10 @@ export default function AdminDashboard({ admin, onLogout }) {
             search={search}
             setSearch={setSearch}
             ward={ward}
-            setWard={setWard}
+            setWard={(value) => {
+              setWard(value);
+              setPage(1);
+            }}
             page={page}
             setPage={setPage}
             pagination={pagination}

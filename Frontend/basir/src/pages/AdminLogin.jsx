@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import { motion } from "framer-motion";
+
 import {
   LockKeyhole,
   User,
@@ -10,10 +12,11 @@ import {
   LoaderCircle,
 } from "lucide-react";
 
-import adminApi from "../api/adminApi";
+import { adminLogin } from "../api/adminApi";
 
 export default function AdminLogin({ onLogin }) {
   const [username, setUsername] = useState("");
+
   const [password, setPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
@@ -36,14 +39,15 @@ export default function AdminLogin({ onLogin }) {
     try {
       setLoading(true);
 
-      const { data } = await adminApi.post("/auth/admin/login", {
-        username,
-        password,
-      });
+      const data = await adminLogin(username.trim(), password);
 
-      if (data.success) {
+      if (data?.success) {
         onLogin(data.admin);
+
+        return;
       }
+
+      setError(data?.message || "Login failed. Please try again.");
     } catch (error) {
       setError(
         error?.response?.data?.message || "Login failed. Please try again.",
@@ -55,7 +59,7 @@ export default function AdminLogin({ onLogin }) {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#030712] text-white">
-      {/* Animated Background */}
+      {/* Background */}
 
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -150,7 +154,7 @@ export default function AdminLogin({ onLogin }) {
                   Username
                 </label>
 
-                <div className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 transition focus-within:border-lime-400/50 focus-within:shadow-[0_0_30px_rgba(163,230,53,.08)]">
+                <div className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 transition focus-within:border-lime-400/50">
                   <User
                     size={19}
                     className="text-slate-500 transition group-focus-within:text-lime-400"
@@ -173,7 +177,7 @@ export default function AdminLogin({ onLogin }) {
                   Password
                 </label>
 
-                <div className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 transition focus-within:border-lime-400/50 focus-within:shadow-[0_0_30px_rgba(163,230,53,.08)]">
+                <div className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 transition focus-within:border-lime-400/50">
                   <LockKeyhole
                     size={19}
                     className="text-slate-500 transition group-focus-within:text-lime-400"
@@ -215,14 +219,12 @@ export default function AdminLogin({ onLogin }) {
                 </motion.div>
               )}
 
-              {/* Button */}
+              {/* Submit */}
 
               <button
                 disabled={loading}
                 className="group relative flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-lime-400 font-bold text-black transition hover:scale-[1.02] disabled:opacity-60"
               >
-                <span className="absolute inset-0 translate-x-[-110%] bg-white/30 transition duration-500 group-hover:translate-x-[110%]" />
-
                 {loading ? (
                   <>
                     <LoaderCircle size={20} className="animate-spin" />
