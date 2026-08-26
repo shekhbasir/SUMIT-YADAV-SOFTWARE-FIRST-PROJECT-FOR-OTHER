@@ -39,16 +39,18 @@ app.use(
 
 /* =====================================
    CORS
-
-   Development के लिए:
-   अपने frontend URL डालो
 ===================================== */
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL, // Live hone par Vercel URL yahan se automatic load hoga
+];
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Bina origin wali requests (jaise Postman) aur allowed domains ko allow karega
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -56,7 +58,7 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
 
-    credentials: true,
+    credentials: true, // Cookies aur headers pass karne ke liye
   }),
 );
 
