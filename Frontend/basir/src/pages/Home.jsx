@@ -19,18 +19,70 @@ export default function Home() {
       <Navbar />
 
       <main>
-        <Hero />
-        <MunicipalityStats />
+        {/* =====================================================
+            HOME
+        ====================================================== */}
+        <section id="home" className="scroll-mt-24">
+          <Hero />
+        </section>
+
+        {/* =====================================================
+            BISHRAMPUR DATA
+        ====================================================== */}
+        <section id="data" className="scroll-mt-24">
+          <MunicipalityStats />
+        </section>
+
+        {/* =====================================================
+            QUICK LINKS
+            Not a navbar item, so it stays exactly where it was.
+        ====================================================== */}
         <QuickLinks />
-        <Journey />
-        <Priorities />
-        <DevelopmentPlans />
-        <Goals />
-        <NewsSection />
-        <MediaSection />
-        <Gallery />
-        <PublicVoice />
-        <JoinMovement />
+
+        {/* =====================================================
+            ABOUT
+        ====================================================== */}
+        <section id="about" className="scroll-mt-24">
+          <Journey />
+        </section>
+
+        {/* =====================================================
+            SERVICES
+        ====================================================== */}
+        <section id="services" className="scroll-mt-24">
+          <Priorities />
+        </section>
+
+        {/* =====================================================
+            DEVELOPMENT
+        ====================================================== */}
+        <section id="development" className="scroll-mt-24">
+          <DevelopmentPlans />
+          <Goals />
+        </section>
+
+        {/* =====================================================
+            NEWS
+        ====================================================== */}
+        <section id="news" className="scroll-mt-24">
+          <NewsSection />
+        </section>
+
+        {/* =====================================================
+            MEDIA
+        ====================================================== */}
+        <section id="media" className="scroll-mt-24">
+          <MediaSection />
+          <Gallery />
+        </section>
+
+        {/* =====================================================
+            CONTACT
+        ====================================================== */}
+        <section id="contact" className="scroll-mt-24">
+          <PublicVoice />
+          <JoinMovement />
+        </section>
       </main>
 
       <Footer />
