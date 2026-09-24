@@ -226,24 +226,17 @@ export default function Footer() {
 
               {/* Phone */}
 
-              <a
-                href="tel:+9779800000000"
-                className="group flex cursor-pointer gap-3 rounded-xl border border-transparent p-3 text-sm text-slate-500 transition-all duration-300 hover:border-white/10 hover:bg-white/[0.03] hover:text-lime-300"
-              >
-                <span className="mt-0.5 text-lg text-lime-400">☎</span>
-
-                <span>+977 9800000000</span>
-              </a>
+             
 
               {/* Email */}
 
               <a
-                href="mailto:info@example.com"
+                href="mailto:yadavsumit653@gmail.com"
                 className="group flex cursor-pointer gap-3 rounded-xl border border-transparent p-3 text-sm text-slate-500 transition-all duration-300 hover:border-white/10 hover:bg-white/[0.03] hover:text-lime-300"
               >
                 <span className="mt-0.5 text-lg text-lime-400">✉</span>
 
-                <span className="break-all">info@example.com</span>
+                <span className="break-all">yadavsumit653@gmail.com</span>
               </a>
             </div>
 
@@ -266,7 +259,7 @@ export default function Footer() {
       <div className="relative border-t border-white/10">
         <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-5 py-5 text-center sm:flex-row sm:text-left">
           <p className="text-[11px] text-slate-600">
-            © 2084 Sumit Yadav Campaign. All Rights Reserved.
+            © 2083 Sumit Yadav Campaign. All Rights Reserved.
           </p>
 
           <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-700">
