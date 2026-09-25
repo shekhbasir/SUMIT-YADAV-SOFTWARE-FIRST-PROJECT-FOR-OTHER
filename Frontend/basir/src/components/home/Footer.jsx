@@ -58,7 +58,7 @@ export default function Footer() {
                 <div className="absolute inset-0 rounded-2xl bg-lime-400/20 blur-2xl" />
 
                 <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-lime-300/30 bg-lime-400 text-2xl shadow-[0_0_35px_rgba(163,230,53,.18)]">
-                  🌳
+                  🏛️
                 </div>
               </div>
 
